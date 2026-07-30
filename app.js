@@ -6,6 +6,8 @@ const bodyParser = require("body-parser");
 const placesRoutes = require("./routes/places-route");
 // Import our custom router file that handles place-related routes
 
+const usersRoutes = require("./routes/users-routes");
+
 const HttpError = require("./models/http-error");
 
 const app = express();
@@ -16,6 +18,8 @@ app.use(bodyParser.json());
 app.use("/api/places", placesRoutes);
 // Register the placesRoutes as middleware
 // Every incoming request will be passed through this router to see if it matches any routes
+
+app.use("/api/users", usersRoutes);
 
 app.use((req, res, next) => {
   const error = new HttpError("Could not find this route", 404);
