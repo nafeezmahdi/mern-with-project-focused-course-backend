@@ -2,6 +2,7 @@ const express = require("express");
 // Import Express again to access the Router module
 
 const placeControllers = require("../controllers/places-controllers");
+const { check } = require("express-validator");
 
 const router = express.Router();
 // Create a new router object using Express's built-in Router function
@@ -12,9 +13,21 @@ router.get("/:pid", placeControllers.getPlaceById);
 
 router.get("/user/:uid", placeControllers.getPlacesByUserId);
 
-router.post("/", placeControllers.createPlace);
+router.post(
+  "/",
+  [
+    check("title").not().isEmpty(),
+    check("description").isLength({ min: 5 }),
+    check("address").not().isEmpty(),
+  ],
+  placeControllers.createPlace,
+);
 
-router.patch("/:pid", placeControllers.updatePlace);
+router.patch(
+  "/:pid",
+  [check("title").not().isEmpty(), check("description").isLength({ min: 5 })],
+  placeControllers.updatePlace,
+);
 
 router.delete("/:pid", placeControllers.deletePlace);
 
