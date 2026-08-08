@@ -8,6 +8,8 @@ const bodyParser = require("body-parser");
 // Import body-parser.
 // It allows our server to understand JSON data sent from the frontend.
 
+const mongoose = require("mongoose");
+
 const placesRoutes = require("./routes/places-route");
 // Import the places router.
 // This file contains routes like:
@@ -124,9 +126,20 @@ app.use((error, req, res, next) => {
 // Express understands that a middleware with
 // four parameters is an ERROR middleware.
 
-app.listen(5000);
+// app.listen(5000);
 // Start the server and make it listen for incoming connections on port 5000
 // START SERVER
 // Start the backend on port 5000.
 // Server address:
 // http://localhost:5000
+
+mongoose
+  .connect(
+    "mongodb+srv://mahdi:m%40hdi8026@todocluster.vj1b1er.mongodb.net/places?appName=TodoCluster",
+  )
+  .then(() => {
+    app.listen(5000);
+  })
+  .catch((err) => {
+    console.log(err);
+  });
