@@ -30,8 +30,22 @@ const DUMMY_USERS = [
 // If the Node server restarts,
 // new users added to this array disappear.
 
-const getUsers = (req, res, next) => {
-  res.json({ users: DUMMY_USERS });
+const getUsers = async (req, res, next) => {
+  let users;
+  try {
+    users = await User.find({}, "-password");
+  } catch (err) {
+    const error = new HttpError(
+      "Fetching user failed, please try again later.",
+      500,
+    );
+
+    return next(error);
+  }
+
+  res.json({ users: users.map((user) => user.toObject({ getters: true })) });
+
+  // res.json({ users: DUMMY_USERS });
 };
 // GET ALL USERS
 // Send JSON response.
@@ -51,7 +65,7 @@ const signup = async (req, res, next) => {
     );
   }
 
-  const { name, email, password, places } = req.body;
+  const { name, email, password } = req.body;
 
   let existingUser;
   try {
@@ -79,7 +93,7 @@ const signup = async (req, res, next) => {
     image:
       "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS01gn8_2ATgLRVElDgMZlRz66fFq5B9TsenBYLBkHNlNAD8jSFglZ05kU&s=10",
     password,
-    places,
+    places: [],
   });
 
   // const hasUser = DUMMY_USERS.find((u) => u.email === email);
@@ -154,16 +168,35 @@ const signup = async (req, res, next) => {
 // RESPONSE
 // 201 = Resource successfully created.
 
-const login = (req, res, next) => {
+const login = async (req, res, next) => {
   const { email, password } = req.body;
 
-  const identifiedUser = DUMMY_USERS.find((u) => u.email === email);
-  if (!identifiedUser || identifiedUser.password !== password) {
-    throw new HttpError(
-      "Could not identify user, credentials seem to be wrong.",
+  let existingUser;
+  try {
+    existingUser = await User.findOne({ email: email });
+  } catch (err) {
+    const error = new HttpError(
+      "Logging in failed, please try again later",
+      500,
+    );
+    return next(error);
+  }
+
+  if (!existingUser || existingUser.password !== password) {
+    const error = new HttpError(
+      `Invalid credentials, could not log you in`,
       401,
     );
+    return next(error);
   }
+
+  // const identifiedUser = DUMMY_USERS.find((u) => u.email === email);
+  // if (!identifiedUser || identifiedUser.password !== password) {
+  //   throw new HttpError(
+  //     "Could not identify user, credentials seem to be wrong.",
+  //     401,
+  //   );
+  // }
 
   res.json({ message: "Logged In" });
 };
