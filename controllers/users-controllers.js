@@ -1,10 +1,3 @@
-const { v4: uuid } = require("uuid");
-// Import uuid.
-// UUID generates unique IDs.
-// v4 is renamed to uuid.
-// So instead of: // v4()
-// we can write: // uuid()
-
 const HttpError = require("../models/http-error");
 // Import our custom error class.
 const User = require("../models/user");
@@ -15,14 +8,6 @@ const { validationResult } = require("express-validator");
 // The controller uses validationResult()
 // to read the result of those checks.
 
-const DUMMY_USERS = [
-  {
-    id: "u1",
-    name: "Nafeez Mahdi",
-    email: "test@test.com",
-    password: "testers",
-  },
-];
 // TEMPORARY USER DATA
 // This array acts like a fake database.
 // You are not using MongoDB yet.

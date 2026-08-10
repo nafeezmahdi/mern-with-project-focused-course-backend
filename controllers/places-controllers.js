@@ -16,27 +16,6 @@ const Place = require("../models/place");
 const User = require("../models/user");
 // const { default: mongoose } = require("mongoose");
 
-let DUMMY_PLACES = [
-  {
-    id: "p1",
-    title: "Empire State Building",
-    description: "One of the most famous sky scrapers in the world!",
-    location: {
-      lat: 40.7484474,
-      lng: -73.9871516,
-    },
-    address: "20 W 34th St, New York, NY 10001",
-    creator: "u1",
-  },
-];
-// TEMPORARY PLACES DATABASE
-// let is used instead of const because later
-// deletePlace() assigns a NEW ARRAY
-// back into DUMMY_PLACES.
-// Location is another object
-// nested inside the place object.
-// This place belongs to user u1.
-
 const getPlaceById = async (req, res, next) => {
   const placeId = req.params.pid;
 
@@ -93,10 +72,11 @@ const getPlaceById = async (req, res, next) => {
 const getPlacesByUserId = async (req, res, next) => {
   const userId = req.params.uid;
 
-  let places;
-
+  // let places;
+  let userWithPlaces;
   try {
-    places = await Place.find({ creator: userId });
+    userWithPlaces = await User.findById(userId).populate("places");
+    // places = await Place.find({ creator: userId });
   } catch (err) {
     const error = new HttpError(
       `Could not find places for the provider user id.`,
@@ -110,7 +90,7 @@ const getPlacesByUserId = async (req, res, next) => {
   //   return p.creator === userId;
   // });
 
-  if (!places || places.length === 0) {
+  if (!userWithPlaces || userWithPlaces === 0) {
     return next(
       new HttpError("Could not find places for provider user id.", 404),
     );
@@ -125,7 +105,9 @@ const getPlacesByUserId = async (req, res, next) => {
   }
 
   res.json({
-    places: places.map((place) => place.toObject({ getters: true })),
+    places: userWithPlaces.places.map((place) =>
+      place.toObject({ getters: true }),
+    ),
   });
 
   // res.json({ places });
