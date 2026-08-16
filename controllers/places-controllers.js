@@ -1,20 +1,15 @@
 const { v4: uuid } = require("uuid");
-// Import UUID for generating unique IDs.
 
 const mongoose = require("mongoose");
 
 const HttpError = require("../models/http-error");
-// Import custom HttpError
 
 const getCoordsForAddress = require("../util/location");
-// Import our address-to-coordinate function.
 
 const { validationResult } = require("express-validator");
-// Import validation result.
 
 const Place = require("../models/place");
 const User = require("../models/user");
-// const { default: mongoose } = require("mongoose");
 
 const getPlaceById = async (req, res, next) => {
   const placeId = req.params.pid;
@@ -52,31 +47,13 @@ const getPlaceById = async (req, res, next) => {
   //   res.json({ message: "It Works!!!" });
   // Send a JSON response back to the client/browser
 };
-// GET ONE PLACE BY ID
-// URL: GET /api/places/p1
-// Route: "/:pid"
-// therefore:
-// req.params.pid === "p1"
-// Search DUMMY_PLACES.
-// p represents each place.
-// Keep searching until:
-// p.id === placeId
-// becomes true.
-// If .find() couldn't find anything,
-// place becomes undefined.
-/* !place then becomes true. */
-// Stop and throw 404 error.
-// If place exists,
-// send it back to frontend.
 
 const getPlacesByUserId = async (req, res, next) => {
   const userId = req.params.uid;
 
-  // let places;
   let userWithPlaces;
   try {
     userWithPlaces = await User.findById(userId).populate("places");
-    // places = await Place.find({ creator: userId });
   } catch (err) {
     const error = new HttpError(
       `Could not find places for the provider user id.`,
@@ -86,22 +63,10 @@ const getPlacesByUserId = async (req, res, next) => {
     return next(error);
   }
 
-  // const places = DUMMY_PLACES.filter((p) => {
-  //   return p.creator === userId;
-  // });
-
   if (!userWithPlaces || userWithPlaces === 0) {
     return next(
       new HttpError("Could not find places for provider user id.", 404),
     );
-
-    // const error = new Error("Could not find a place for provider user id.");
-    // error.code = 404;
-    // return next(error);
-
-    // return res
-    //   .status(404)
-    //   .json({ message: "Could not find a place for the provider user id." });
   }
 
   res.json({
@@ -109,30 +74,7 @@ const getPlacesByUserId = async (req, res, next) => {
       place.toObject({ getters: true }),
     ),
   });
-
-  // res.json({ places });
 };
-// GET ALL PLACES OF A USER
-// Example:
-// GET /api/places/user/u1
-// req.params.uid
-// becomes: "u1"
-// filter() checks ALL places
-// and returns ALL matches.
-// We keep a place if:
-// p.creator === userId
-// Example:
-// userId = "u1"
-// Places:
-// p1 creator u1 ✅
-// p2 creator u2 ❌
-// p3 creator u1 ✅
-// Result:
-// [p1, p3]
-// If no places exist...
-// Create error and send it
-// to the next middleware.
-// Otherwise send places.
 
 const createPlace = async (req, res, next) => {
   const errors = validationResult(req);
@@ -195,39 +137,6 @@ const createPlace = async (req, res, next) => {
 
   res.status(201).json({ place: createdPlace });
 };
-// CREATE PLACE
-// async means this function can use await.
-// Get validation result.
-// If validation failed...
-// REQUEST BODY
-// Incoming data may look like:
-// {
-//   "title": "My Home",
-//   "description": "A nice place",
-//   "address": "Dhaka",
-//   "creator": "u1"
-// }
-// Destructure properties from req.body.
-// Declare coordinates.
-// At this moment: coordinates === undefined
-// GET COORDINATES
-// Call our asynchronous location function.
-// await means:
-// "Wait for the result before continuing
-// this function."
-// If getCoordsForAddress throws/rejects,
-// send error to Express error middleware.
-// CREATE PLACE OBJECT
-// Generate unique ID.
-// coordinates might be:
-// {
-//   lat: 40.74,
-//   lng: -73.98
-// }
-// SAVE
-// Add place to array.
-// RESPONSE
-// 201 = Created
 
 const updatePlace = async (req, res, next) => {
   const errors = validationResult(req);
@@ -275,47 +184,6 @@ const updatePlace = async (req, res, next) => {
 
   res.status(200).json({ place: place.toObject({ getters: true }) });
 };
-// UPDATE PLACE
-// Get validator result.
-// Validation failed.
-// Get updated title and description
-// from frontend.
-// Get place ID from URL.
-// PATCH /api/places/p1
-// placeId = "p1"
-// FIND PLACE AND COPY IT
-// First:
-// DUMMY_PLACES.find(...)
-// gets the matching object.
-// Then:
-// {...object}
-// creates a shallow copy using
-// the spread operator.
-// Example:
-// Original:
-// {
-//   id: "p1",
-//   title: "Old",
-//   description: "Old description"
-// }
-//
-// ... copies those properties
-// into a new object.
-// Find where the place exists
-// inside the array.
-// Example:
-// [
-//   p1, // index 0
-//   p2, // index 1
-//   p3  // index 2
-// ]
-// Looking for p2:
-// placeIndex = 1
-// Change copied object's title.
-// Change copied object's description.
-// Replace original place
-// inside DUMMY_PLACES.
-// Return updated object.
 
 const deletePlace = async (req, res, next) => {
   const placeId = req.params.pid;
@@ -361,34 +229,9 @@ const deletePlace = async (req, res, next) => {
   // DUMMY_PLACES = DUMMY_PLACES.filter((p) => p.id !== placeId);
   res.status(200).json({ message: "Deleted place." });
 };
-// DELETE PLACE
-// Get ID from URL.
-// DELETE /api/places/p1
-// First check whether place exists.
-// Place does not exist.
-// REMOVE PLACE
-// filter() creates a NEW array.
-// Keep every place whose ID
-// is NOT the deleted ID.
-// Example:
-// Before:
-// [
-//   { id: "p1" },
-//   { id: "p2" },
-//   { id: "p3" }
-// ]
-// Delete p2:
-// p.id !== "p2"
-// Results:
-// [
-//   { id: "p1" },
-//   { id: "p3" }
-// ]
-// Send success response.
 
 exports.getPlaceById = getPlaceById;
 exports.getPlacesByUserId = getPlacesByUserId;
 exports.createPlace = createPlace;
 exports.updatePlace = updatePlace;
 exports.deletePlace = deletePlace;
-// EXPORT CONTROLLERS
