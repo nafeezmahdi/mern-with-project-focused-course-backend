@@ -1,3 +1,5 @@
+const fs = require("fs");
+
 const { v4: uuid } = require("uuid");
 
 const mongoose = require("mongoose");
@@ -100,7 +102,7 @@ const createPlace = async (req, res, next) => {
     description,
     address,
     location: coordinates,
-    image: `https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS01gn8_2ATgLRVElDgMZlRz66fFq5B9TsenBYLBkHNlNAD8jSFglZ05kU&s=10`,
+    image: req.file.path,
     creator,
   });
 
@@ -205,6 +207,8 @@ const deletePlace = async (req, res, next) => {
     return next(error);
   }
 
+  const imagePath = place.image;
+
   try {
     const sess = await mongoose.startSession();
     sess.startTransaction();
@@ -221,6 +225,10 @@ const deletePlace = async (req, res, next) => {
 
     return next(error);
   }
+
+  fs.unlink(imagePath, (err) => {
+    console.log(err);
+  });
 
   // if (!DUMMY_PLACES.find((p) => p.id === placeId)) {
   //   throw new HttpError("Could not find a place for that id.", 404);
