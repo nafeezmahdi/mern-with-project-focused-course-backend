@@ -27,6 +27,15 @@ app.use((req, res, next) => {
   );
   res.setHeader("Access-Control-Allow-Methods", "GET, POST, PATCH, DELETE");
 
+  // res.setHeader(
+  //   "Access-Control-Allow-Methods",
+  //   "GET, POST, PATCH, DELETE, OPTIONS",
+  // );
+
+  // if (req.method === "OPTIONS") {
+  //   return res.sendStatus(204);
+  // }
+
   next();
 });
 
@@ -47,7 +56,7 @@ app.use((error, req, res, next) => {
     });
   }
 
-  if (res.headerSent) {
+  if (res.headersSent) {
     return next(error);
   }
 
