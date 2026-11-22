@@ -56,7 +56,7 @@ const signup = async (req, res, next) => {
 
   let hashedPassword;
   try {
-    hashedPassword = bcrypt.hash(password, 12);
+    hashedPassword = await bcrypt.hash(password, 12);
   } catch (err) {
     const error = new HttpError("Couldn't create user, please try again.", 500);
 
@@ -116,7 +116,7 @@ const login = async (req, res, next) => {
   if (!existingUser) {
     const error = new HttpError(
       `Invalid credentials, could not log you in`,
-      401,
+      403,
     );
     return next(error);
   }
