@@ -67,7 +67,7 @@ app.use((error, req, res, next) => {
 
 mongoose
   .connect(
-    "mongodb+srv://mahdi:m%40hdi8026@todocluster.vj1b1er.mongodb.net/mern?appName=TodoCluster",
+    `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@todocluster.vj1b1er.mongodb.net/${process.env.DB_NAME}?appName=TodoCluster`,
   )
   .then(() => {
     app.listen(5000);
